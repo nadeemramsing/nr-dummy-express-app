@@ -1,0 +1,24 @@
+{
+  "name": "nr-dummy-express-app",
+  "version": "1.0.0",
+  "description": "Simple ExpressJS app involving \"Comments\".",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nadeemramsing/nr-dummy-express-app.git"
+  },
+  "author": "Nadeem Ramsing <nadeem.ramsing@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nadeemramsing/nr-dummy-express-app/issues"
+  },
+  "homepage": "https://github.com/nadeemramsing/nr-dummy-express-app#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "lodash": "^4.17.10",
+    "morgan": "^1.9.0"
+  }
+}
