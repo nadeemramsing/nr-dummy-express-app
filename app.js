@@ -22,8 +22,17 @@ app.use(function (req, res, next) {
         next();
 });
 
+app.get('/api/comments/count', (req, res) => {
+    const
+        text = RegExp(req.query.searchText, 'i'),
+        result = _.filter(data, comment => comment.name.match(text) || comment.email.match(text) || comment.body.match(text));
+
+    res.send({ count: result.length });
+});
+
 app.get('/api/comments', (req, res) => {
-    var skip = parseInt(req.query.skip),
+    const
+        skip = parseInt(req.query.skip),
         limit = parseInt(req.query.limit),
         text = RegExp(req.query.searchText, 'i');
 
@@ -36,12 +45,11 @@ app.get('/api/comments', (req, res) => {
     );
 });
 
-app.get('/api/comments/count', (req, res) => {
-    var text = RegExp(req.query.searchText, 'i'),
-        result = _.filter(data, comment => comment.name.match(text) || comment.email.match(text) || comment.body.match(text));
+app.get('/api/comment/:id', (req, res) => res.send(_.find(data, { 'id': Number(req.params.id) })));
 
-    res.send({ count: result.length });
-});
+app.post('/api/comment');
+
+app.put('/api/comment');
 
 app.use('/api', (req, res) => {
     res.send('Welcome to Dummy RESTful API\n' + req.originalUrl);
