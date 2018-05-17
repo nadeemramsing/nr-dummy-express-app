@@ -47,9 +47,30 @@ app.get('/api/comments', (req, res) => {
 
 app.get('/api/comment/:id', (req, res) => res.send(_.find(data, { 'id': Number(req.params.id) })));
 
-app.post('/api/comment');
+app.post('/api/comment', (req, res) => {
+    try {
+        const body = _.pick(req.body, ['postId', 'id', 'name', 'email', 'body']);
+        data = data.concat(body);
+    }
+    catch (e) {
+        res.status(500).send(e, {body});
+    }
+    res.send(body);
 
-app.put('/api/comment');
+});
+
+app.put('/api/comment/:id', (req, res) => {
+    try {
+        const body = _.pick(req.body, ['postId', 'name', 'email', 'body']);
+        let comment = _.find(data, { 'id': req.params.id });
+
+        comment = Object.assign({}, comment, body);
+    }
+    catch (e) {
+        res.status(500).send(e, {body}, {comment});
+    }
+    res.send(comment);
+});
 
 app.use('/api', (req, res) => {
     res.send('Welcome to Dummy RESTful API\n' + req.originalUrl);
