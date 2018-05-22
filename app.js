@@ -11,7 +11,7 @@ const
     //Use 'operators' (NOT 'operator'); ELSE 'Cannot read property 'lift' of undefined'
     //~Observable operators (NOT Value/Array/Object operators); useful when dealing with multiple Observables merged together
     { filter } = require('rxjs/operators/filter'),
-    { map } = require('rxjs/operators/map'),
+    { mergeAll } = require('rxjs/operators/mergeAll'),
     { skip } = require('rxjs/operators/skip'),
     { take } = require('rxjs/operators/take'),
 
@@ -42,20 +42,41 @@ app.get('/api/comments/count', (req, res) => {
 
 app.get('/api/comments', (req, res) => {
     const
-        skip = parseInt(req.query.skip),
-        limit = parseInt(req.query.limit),
+        skipInt = parseInt(req.query.skip),
+        limitInt = parseInt(req.query.limit),
         text = RegExp(req.query.searchText, 'i');
+
+    let comments = [];
 
     //In newer versions of RxJS, operators (such as map, filter, reduce) are pure functions (not available as property in Observable instance)
     return of(data)
         //.pipe(observable => null) //MUST return an Observable; ELSE 'Cannot read property 'pipe' of null...
-        .pipe(map(value => _.chain(value)
-            .filter(comment => comment.name.match(text) || comment.email.match(text) || comment.body.match(text))
-            .drop(skip || 0)
-            .take(limit || data.length)
-            .value()))
 
-        .subscribe(value => res.send(value));
+        /* 
+        -mergeAll: does not preserve order ~parallel
+        -concatAll: preserves order BUT waits for previous observable to finish before processing the next one (~sequential/series)
+
+        => IF async, use concatAll; ELSE use mergeAll
+        */
+        .pipe(
+            mergeAll()
+        )
+        .pipe(
+            filter(comment => comment.name.match(text) || comment.email.match(text) || comment.body.match(text))
+        )
+        .pipe(
+            skip(skipInt || 0)
+        )
+        .pipe(
+            take(limitInt || data.length)
+        )
+        .subscribe(
+            {
+                next: comment => comments.push(comment),
+                error: err => res.status(500).send(err),
+                complete: () => res.send(comments),
+            }
+        )
 
     //'of' does not lead to name conflict
     /* for (let item of data) {
@@ -63,11 +84,12 @@ app.get('/api/comments', (req, res) => {
         debugger
     } */
 
+    //Using Lodash
     /* res.send(
         _.chain(data)
             .filter(comment => comment.name.match(text) || comment.email.match(text) || comment.body.match(text))
-            .drop(skip || 0)
-            .take(limit || data.length)
+            .drop(skipInt || 0)
+            .take(limitInt || data.length)
             .value()
     ); */
 });
