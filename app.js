@@ -1,20 +1,24 @@
 //https://jsonplaceholder.typicode.com/comments
 const
+    //RxJS
+    //rxjs-compat needed
+    { of } = require('rxjs/observable/of'),
+    //Use 'operators' (NOT 'operator'); ELSE 'Cannot read property 'lift' of undefined'
+    //~Observable operators (NOT Value/Array/Object operators); useful when dealing with multiple Observables merged together
+    { tap } = require('rxjs/operators/tap'),
+    { filter } = require('rxjs/operators/filter'),
+    { mergeAll } = require('rxjs/operators/mergeAll'),
+    { skip } = require('rxjs/operators/skip'),
+    { take } = require('rxjs/operators/take'),
+    { catchError } = require('rxjs/operators/catchError');
+
+const
     _ = require('lodash'),
     bodyParser = require('body-parser'),
     express = require('express'),
     morgan = require('morgan'),
     jsonfile = require('jsonfile'),
 
-    //RxJS
-    //rxjs-compat needed
-    { of } = require('rxjs/observable/of'),
-    //Use 'operators' (NOT 'operator'); ELSE 'Cannot read property 'lift' of undefined'
-    //~Observable operators (NOT Value/Array/Object operators); useful when dealing with multiple Observables merged together
-    { filter } = require('rxjs/operators/filter'),
-    { mergeAll } = require('rxjs/operators/mergeAll'),
-    { skip } = require('rxjs/operators/skip'),
-    { take } = require('rxjs/operators/take'),
 
     app = express();
 
@@ -67,12 +71,19 @@ app.get('/api/comments', (req, res) => {
         => IF async, use concatAll; ELSE use mergeAll
         */
         .pipe(
-            mergeAll(),
-        //IF filter, skip, take are placed here, they won't be processed => since, in this pipe, there is still one Observable 
-        //Only in the next pipe with mergeAll return each item in the array as individual Observables
-    )
+            mergeAll()
+            //IF filter, skip, take are placed here, they won't be processed => since, in this pipe, there is still one Observable 
+            //Only in the next pipe with mergeAll return each item in the array as individual Observables
+        )
         .pipe(
-            filter(comment => comment.name.match(text) || comment.email.match(text) || comment.body.match(text))
+            filter(comment => comment.name.match(text) || comment.email.match(text) || comment.body.match(text)),
+            catchError(function (e, observable) {
+                //this won't work using Arrow Function (which applies lexical binding, i.e. this = outer scope)
+                return this.notifyError(e);
+            })
+        )
+        .pipe(
+            tap(v => console.log(v))
         )
         .pipe(
             skip(skipInt || 0)
@@ -83,8 +94,9 @@ app.get('/api/comments', (req, res) => {
         .subscribe(
             {
                 next: comment => comments.push(comment),
-                error: err => res.status(500).send(err),
-                complete: () => res.send(comments),
+                //BUG: IF error, response = {} is being sent.
+                error: err => { console.log(err); res.status(500).send(err) },
+                complete: () => res.send(comments)
             }
         )
 
