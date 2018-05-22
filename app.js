@@ -59,7 +59,9 @@ app.get('/api/comments', (req, res) => {
         => IF async, use concatAll; ELSE use mergeAll
         */
         .pipe(
-            mergeAll()
+            mergeAll(),
+            //IF filter, skip, take are placed here, they won't be processed => since, in this pipe, there is still one Observable 
+            //Only in the next pipe with mergeAll return each item in the array as individual Observables
         )
         .pipe(
             filter(comment => comment.name.match(text) || comment.email.match(text) || comment.body.match(text))
