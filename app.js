@@ -5,6 +5,16 @@ const
     express = require('express'),
     morgan = require('morgan'),
 
+    //RxJS
+    //rxjs-compat needed
+    { of } = require('rxjs/observable/of'),
+    //Use 'operators' (NOT 'operator'); ELSE 'Cannot read property 'lift' of undefined'
+    //~Observable operators (NOT Value/Array/Object operators); useful when dealing with multiple Observables merged together
+    { filter } = require('rxjs/operators/filter'),
+    { map } = require('rxjs/operators/map'),
+    { skip } = require('rxjs/operators/skip'),
+    { take } = require('rxjs/operators/take'),
+
     app = express();
 
 app.use(morgan('dev'));
@@ -36,13 +46,30 @@ app.get('/api/comments', (req, res) => {
         limit = parseInt(req.query.limit),
         text = RegExp(req.query.searchText, 'i');
 
-    res.send(
+    //In newer versions of RxJS, operators (such as map, filter, reduce) are pure functions (not available as property in Observable instance)
+    return of(data)
+        //.pipe(observable => null) //MUST return an Observable; ELSE 'Cannot read property 'pipe' of null...
+        .pipe(map(value => _.chain(value)
+            .filter(comment => comment.name.match(text) || comment.email.match(text) || comment.body.match(text))
+            .drop(skip || 0)
+            .take(limit || data.length)
+            .value()))
+
+        .subscribe(value => res.send(value));
+
+    //'of' does not lead to name conflict
+    /* for (let item of data) {
+        let test = of(data);
+        debugger
+    } */
+
+    /* res.send(
         _.chain(data)
             .filter(comment => comment.name.match(text) || comment.email.match(text) || comment.body.match(text))
             .drop(skip || 0)
             .take(limit || data.length)
             .value()
-    );
+    ); */
 });
 
 app.get('/api/comment/:id', (req, res) => res.send(_.find(data, { 'id': Number(req.params.id) })));
@@ -53,7 +80,7 @@ app.post('/api/comment', (req, res) => {
         data = data.concat(body);
     }
     catch (e) {
-        res.status(500).send(e, {body});
+        res.status(500).send(e, { body });
     }
     res.send(body);
 
@@ -67,7 +94,7 @@ app.put('/api/comment/:id', (req, res) => {
         comment = Object.assign({}, comment, body);
     }
     catch (e) {
-        res.status(500).send(e, {body}, {comment});
+        res.status(500).send(e, { body }, { comment });
     }
     res.send(comment);
 });
