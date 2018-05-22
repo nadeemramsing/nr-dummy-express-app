@@ -1,9 +1,10 @@
 //https://jsonplaceholder.typicode.com/comments
 const
     _ = require('lodash'),
-    data = require('./data'),
+    bodyParser = require('body-parser'),
     express = require('express'),
     morgan = require('morgan'),
+    jsonfile = require('jsonfile'),
 
     //RxJS
     //rxjs-compat needed
@@ -17,11 +18,18 @@ const
 
     app = express();
 
+const config = {
+    jsonPath: './data.json'
+};
+
+let data = [];
+jsonfile.readFile(config.jsonPath, (err, json) => data = json);
+
 app.use(morgan('dev'));
+app.use(bodyParser.json());
 
 //enableCors
 app.use(function (req, res, next) {
-
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-auth-token, x-client-id");
     res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
@@ -60,9 +68,9 @@ app.get('/api/comments', (req, res) => {
         */
         .pipe(
             mergeAll(),
-            //IF filter, skip, take are placed here, they won't be processed => since, in this pipe, there is still one Observable 
-            //Only in the next pipe with mergeAll return each item in the array as individual Observables
-        )
+        //IF filter, skip, take are placed here, they won't be processed => since, in this pipe, there is still one Observable 
+        //Only in the next pipe with mergeAll return each item in the array as individual Observables
+    )
         .pipe(
             filter(comment => comment.name.match(text) || comment.email.match(text) || comment.body.match(text))
         )
@@ -99,15 +107,16 @@ app.get('/api/comments', (req, res) => {
 app.get('/api/comment/:id', (req, res) => res.send(_.find(data, { 'id': Number(req.params.id) })));
 
 app.post('/api/comment', (req, res) => {
+    let body;
     try {
-        const body = _.pick(req.body, ['postId', 'id', 'name', 'email', 'body']);
-        data = data.concat(body);
+        body = _.pick(req.body, ['postId', 'id', 'name', 'email', 'body']);
+        data.push(body);
+
+        jsonfile.writeFile(config.jsonPath, data, err => err ? res.status(500).send(err) : res.send(body));
     }
     catch (e) {
         res.status(500).send(e, { body });
     }
-    res.send(body);
-
 });
 
 app.put('/api/comment/:id', (req, res) => {

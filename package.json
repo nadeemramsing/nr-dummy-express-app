@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/nadeemramsing/nr-dummy-express-app#readme",
   "dependencies": {
+    "body-parser": "^1.18.3",
     "express": "^4.16.3",
+    "jsonfile": "^4.0.0",
     "lodash": "^4.17.10",
     "morgan": "^1.9.0",
     "rxjs": "^6.2.0",
