@@ -95,7 +95,7 @@ app.get('/api/comments', (req, res) => {
             {
                 next: comment => comments.push(comment),
                 //BUG: IF error, response = {} is being sent.
-                error: err => { console.log(err); res.status(500).send(err) },
+                error: e => { console.log(e); res.status(500).send(e.toString()) },
                 complete: () => res.send(comments)
             }
         )
