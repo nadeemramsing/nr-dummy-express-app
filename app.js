@@ -136,9 +136,9 @@ app.use('/api', (req, res) => {
     res.send('Welcome to Dummy RESTful API\n' + req.originalUrl);
 });
 
-var port = 4000;
+const port = 4000;
 
-var server = app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log('Express is listening on port: ' + port);
 });
 
