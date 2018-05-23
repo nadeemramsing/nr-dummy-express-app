@@ -88,36 +88,35 @@ app.get('/api/comments', (req, res) => {
                     //aka, continue
                     //Since on true, truthy is returned
                 }
-            }),
-                /* filter(comment => comment.name.match(text) || comment.email.match(text) || comment.body.match(text)), */
-                tap(v => console.log(v)),
-                skip(skipInt || 0),
-                take(limitInt || data.length)
-            )
-            //no indiviual pipes needed (since each item in array is already an individual Observable)
-            /* 
-            .pipe(
-                tap(v => console.log(v))
-            )
-            .pipe(
-                skip(skipInt || 0)
-            )
-            .pipe(
-                take(limitInt || data.length)
-            ) 
-            */
-
-            //In reality, catchError not needed here (error already catched in callbackFn.error);
-            //=> BUG was due to e.toString() not being used.
-
-            //placing in the last pipe should be enough instead of placing one in each pipes
-            /* .pipe(
-                catchError(function (e, observable) {
-                    //this won't work using Arrow Function (which applies lexical binding, i.e. this = outer scope)
-                    return this.notifyError(e);
-                })
-            */
+            })
+            ),
+            tap(v => console.log(v)),
+            skip(skipInt || 0),
+            take(limitInt || data.length)
         )
+        //no indiviual pipes needed (since each item in array is already an individual Observable)
+        /* 
+        .pipe(
+            tap(v => console.log(v))
+        )
+        .pipe(
+            skip(skipInt || 0)
+        )
+        .pipe(
+            take(limitInt || data.length)
+        ) 
+        */
+
+        //In reality, catchError not needed here (error already catched in callbackFn.error);
+        //=> BUG was due to e.toString() not being used.
+
+        //placing in the last pipe should be enough instead of placing one in each pipes
+        /* .pipe(
+            catchError(function (e, observable) {
+                //this won't work using Arrow Function (which applies lexical binding, i.e. this = outer scope)
+                return this.notifyError(e);
+            })
+        */
         .subscribe(
             {
                 next: comment => comments.push(comment),
