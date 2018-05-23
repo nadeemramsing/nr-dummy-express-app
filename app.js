@@ -77,11 +77,11 @@ app.get('/api/comments', (req, res) => {
         )
         .pipe(
             filter(comment => comment.name.match(text) || comment.email.match(text) || comment.body.match(text)),
-            //no indiviual pipes needed (since each item in array is already an individual Observable)
             tap(v => console.log(v)),
             skip(skipInt || 0),
             take(limitInt || data.length)
         )
+        //no indiviual pipes needed (since each item in array is already an individual Observable)
         /* 
         .pipe(
             tap(v => console.log(v))
