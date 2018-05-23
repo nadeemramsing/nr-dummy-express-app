@@ -19,7 +19,6 @@ const
     morgan = require('morgan'),
     jsonfile = require('jsonfile'),
 
-
     app = express();
 
 const config = {
