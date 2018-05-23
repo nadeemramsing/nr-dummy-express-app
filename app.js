@@ -77,11 +77,12 @@ app.get('/api/comments', (req, res) => {
         )
         .pipe(
             filter(comment => comment.name.match(text) || comment.email.match(text) || comment.body.match(text)),
-            catchError(function (e, observable) {
-                //this won't work using Arrow Function (which applies lexical binding, i.e. this = outer scope)
-                return this.notifyError(e);
-            })
+            //no indiviual pipes needed (since each item in array is already an individual Observable)
+            tap(v => console.log(v)),
+            skip(skipInt || 0),
+            take(limitInt || data.length)
         )
+        /* 
         .pipe(
             tap(v => console.log(v))
         )
@@ -90,7 +91,19 @@ app.get('/api/comments', (req, res) => {
         )
         .pipe(
             take(limitInt || data.length)
-        )
+        ) 
+        */
+
+        //In reality, catchError not needed here (error already catched in callbackFn.error);
+        //=> BUG was due to e.toString() not being used.
+
+        //placing in the last pipe should be enough instead of placing one in each pipes
+        /* .pipe(
+            catchError(function (e, observable) {
+                //this won't work using Arrow Function (which applies lexical binding, i.e. this = outer scope)
+                return this.notifyError(e);
+            })
+        ) */
         .subscribe(
             {
                 next: comment => comments.push(comment),
