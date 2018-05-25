@@ -46,7 +46,7 @@ app.use(function (req, res, next) {
 app.get('/api/comments/count', (req, res) => {
     const
         text = RegExp(req.query.searchText, 'i'),
-        result = _.filter(data, comment => comment.name.match(text) || comment.email.match(text) || comment.body.match(text));
+        result = _.filter(data, comment => ['name', 'email', 'body'].some(key => text.test(comment[key])));
 
     res.send({ count: result.length });
 });
