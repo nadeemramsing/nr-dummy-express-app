@@ -90,7 +90,7 @@ app.get('/api/comments', (req, res) => {
                 }
             })
             ),
-            tap(v => console.log(v)),
+            /* tap(v => console.log(v)), */
             skip(skipInt || 0),
             take(limitInt || data.length)
         )
