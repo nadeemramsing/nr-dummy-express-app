@@ -8,6 +8,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
+            "runtimeExecutable": "~/.nvm/versions/node/v8.11.4/bin/node",
             "program": "${workspaceFolder}/src/app.js"
         }
     ]
