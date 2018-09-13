@@ -1,12 +1,22 @@
 module.exports = async function () {
-    const mongoMock = require('mongo-mock');
+    const mongoose = require('mongoose');
 
-    const { MongoClient } = mongoMock;
-    MongoClient.persist = 'mongo.js';
+    const url = 'mongodb://localhost:27017/billingdb';
 
-    const url = 'mongodb://localhost:27017/mockdb';
+    const { connection, Schema } = await mongoose
+        .connect(url, { useNewUrlParser: true })
+        .catch(e => console.error('Connection failed: ', e));
 
-    let db = null;
-    try { db = await MongoClient.connect(url, {}) }
-    catch (e) { console.log('Connection failed: ', e) }
+
+    const billSchema = new Schema({
+
+    });
+
+    const billingArticleSchema = new Schema({
+
+    });
+
+    const articleSchema = new Schema({
+
+    });
 }
