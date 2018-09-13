@@ -4,7 +4,7 @@ module.exports = async function () {
     const { MongoClient } = mongoMock;
     MongoClient.persist = 'mongo.js';
 
-    const url = 'mongodb://localhost:27017/nadeem';
+    const url = 'mongodb://localhost:27017/mockdb';
 
     let db = null;
     try { db = await MongoClient.connect(url, {}) }
