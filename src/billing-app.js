@@ -67,6 +67,8 @@ module.exports = async function () {
 
     // VIRTUAL POPULATE WITH SORTING/*  */
     // Getting Article from Bill: Bill -> BillArticle -> Article
+    // For sorting based on populated field (e.g. 'billingArticle.article.price', use aggregrate)
+    // Not yet supported in mongoose: see GitHub issue https://github.com/Automattic/mongoose/issues/2202
     Bill
         .find({ project: 'Danzéré' })
         .populate({ path: 'billingArticle', populate: { path: 'article' } })
