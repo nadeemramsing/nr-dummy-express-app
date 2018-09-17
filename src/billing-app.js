@@ -65,9 +65,9 @@ module.exports = async function () {
     const billingSaved1 = await Bill.findOneAndUpdate(bill1, { $set: bill1 }, { ...options, setDefaultsOnInsert: true });
     const billingSaved2 = await Bill.findOneAndUpdate(bill2, { $set: bill2 }, { ...options, setDefaultsOnInsert: true });
 
-    // VIRTUAL POPULATE WITH SORTING/*  */
+    // VIRTUAL POPULATE WITH SORTING
     // Getting Article from Bill: Bill -> BillArticle -> Article
-    // For sorting based on populated field (e.g. 'billingArticle.article.price', use aggregrate)
+    // For sorting based on populated field (e.g. 'billingArticle.article.price'), use aggregrate
     // Not yet supported in mongoose: see GitHub issue https://github.com/Automattic/mongoose/issues/2202
     Bill
         .find({ project: 'Danzéré' })
